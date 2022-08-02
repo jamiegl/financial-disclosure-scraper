@@ -1,8 +1,5 @@
-import scraper.helpers as sch
-import pandas as pd
+from mod.scraper import clerk_request
 
-# Generates image from readme
-# There is a slice on the collect_filings function - remove it if 
-# you want more rows
+response = clerk_request("pelosi")
 
-data = sch.collect_filings('Pelosi')
+print(1)

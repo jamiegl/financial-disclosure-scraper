@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "financial-disclosure-scraper"
+version = "0.1.0"
+description = ""
+authors = ["Jamie O'Reilly-Gall <jamie@advancinganalytics.co.uk>"]
+readme = "README.md"
+packages = [{include = "financial_disclosure_scraper"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+tika = "^1.24"
+requests = "^2.28.1"
+bs4 = "^0.0.1"
+pandas = "^1.4.3"
+lxml = "^4.9.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

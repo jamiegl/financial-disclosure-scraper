@@ -1,16 +1,16 @@
 import requests
 import pandas as pd
-import lxml
 from bs4 import BeautifulSoup
 from tika import parser
 import io
 import re
 import time
 
-def _clerk_request(member_lastname=None):
-    
+base_url = "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure/"
+
+def clerk_request(member_lastname=None) -> bs4.BeautifulSoup:  
     """
-    Makes a request to the House of Clerks website for member financial
+    Makes a request to the Office of the Clerk's website for member financial
     disclosures
     
     Parameters
@@ -20,17 +20,17 @@ def _clerk_request(member_lastname=None):
     
     Returns
     -------
-    String
-        Response of request.
+    Response
+        bs4.BeautifulSoup: Souped HTML response of request to clerk query tool.
     """
-    
+    endpoint = base_url + "ViewMemberSearchResult"
     if member_lastname is None:
-        clerk_request = requests \
-        .post("https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure/ViewMemberSearchResult").text
+        clerk_response = requests.post(endpoint)
     else:
-         clerk_request = requests \
-        .post("https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure/ViewMemberSearchResult", data ={"LastName": f"{member_lastname}"}).text
-    return clerk_request
+         clerk_response = requests.post(endpoint, data ={"LastName": member_lastname})
+    clerk_response.raise_for_status()
+    souped_response = BeautifulSoup(clerk_request.text, "lxml")
+    return souped_response
  
 def _clerk_filings(member_lastname=None, filing_range=2014): 
     
@@ -168,7 +168,7 @@ def _tabulate_filing_pdf(request_directory, tickers_only=True, pattern="\\n(((?!
 def collect_filings(member_lastname=None, filing_range=2014):
     filing_df = _clerk_filings(member_lastname, filing_range)
     concat_df = pd.DataFrame()
-    data = filing_df["href"][0:3].apply(lambda x: [_tabulate_filing_pdf(x), x])
+    data = filing_df["href"].apply(lambda x: [_tabulate_filing_pdf(x), x])
 
     for tuple in data:
         dfc = pd.DataFrame(tuple[0])
