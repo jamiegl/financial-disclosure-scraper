@@ -1,5 +1,4 @@
-from mod.scraper import clerk_request
+from mod.scraper import get_pdf
 
-response = clerk_request("pelosi")
-
+response = get_pdf("aderholt")
 print(1)

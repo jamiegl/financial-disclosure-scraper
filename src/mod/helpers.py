@@ -8,7 +8,7 @@ import time
 
 base_url = "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure/"
 
-def clerk_request(member_lastname=None) -> bs4.BeautifulSoup:  
+def _clerk_request(member_lastname=None) -> BeautifulSoup:  
     """
     Makes a request to the Office of the Clerk's website for member financial
     disclosures
@@ -29,7 +29,7 @@ def clerk_request(member_lastname=None) -> bs4.BeautifulSoup:
     else:
          clerk_response = requests.post(endpoint, data ={"LastName": member_lastname})
     clerk_response.raise_for_status()
-    souped_response = BeautifulSoup(clerk_request.text, "lxml")
+    souped_response = BeautifulSoup(clerk_response.text, "lxml")
     return souped_response
  
 def _clerk_filings(member_lastname=None, filing_range=2014): 
