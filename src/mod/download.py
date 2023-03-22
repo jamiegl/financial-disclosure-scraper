@@ -1,10 +1,8 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
-from tika import parser
-import io
-import re
-import time
+import pdf2image
+from typing import Tuple
 
 base_url = "https://disclosures-clerk.house.gov/PublicDisclosure/FinancialDisclosure/"
 
@@ -73,38 +71,24 @@ def clerk_filings(member_lastname=None, filing_range: int=2014) -> pd.DataFrame:
      
     return filings_df[filings_df["Filing Year"] >= filing_range]
 
-
-def request_pdf_to_string(pdf_endpoint):
-    
+def image_from_endpoint(endpoint: str) -> Tuple:
     """
-    Gets member filing pdf data. Used as a lambda on href from clerk_filings.   
+    Gets PIL image objects from the PDF at the given endpoint.
     
     Parameters
     ----------
-    request_directory: str
-        Directory URL of relevant PDF. Gets concatenated onto base URL.    
-    filing_rang: Int, default 2014
-    
+    endpoint: str
+        Endpoint PDF is located at.
+
     Returns
     -------
-    string
-        String content of requested PDF.
+    Tuple
+        First elem is image metadata, second elem is array of PIL images for
+        each page in PDF.
     """
-    
-    request_url = "https://disclosures-clerk.house.gov" + pdf_endpoint
-    time.sleep(1)
-    pdf_bytes = requests.get(request_url).content
-    with io.BytesIO(pdf_bytes) as pdf_stream:
-        tika_dict = parser.from_buffer(pdf_stream)
-        pdf_string = tika_dict["content"]
-    return pdf_string
-
-
-def get_pdf(member_lastname):
-    response_df = clerk_filings(member_lastname=member_lastname).iloc[:5]
-    response_df["pdf_string"] = response_df["href"].apply(lambda x: request_pdf_to_string(x))
-    return response_df
-
-def parse_pdf(pdf_string: str, pattern: str="\\n(((?!\\n).)*)\s\w{2}\s(\$[0-9\,]+.*?\$[0-9\,]+)"):
-    investment_list_extract = re.findall(pattern, pdf_string, flags=re.I | re.S | re.M)
-    return investment_list_extract
+    base_url = "https://disclosures-clerk.house.gov"
+    pdf_response_obj = requests.get(base_url + endpoint)
+    pdf_response_obj.raise_for_status()
+    pdf_info = pdf2image.pdfinfo_from_bytes(pdf_response_obj.content)
+    pdf_pages = pdf2image.convert_from_bytes(pdf_response_obj.content)
+    return (pdf_info, pdf_pages)
