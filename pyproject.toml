@@ -2,7 +2,7 @@
 name = "financial-disclosure-scraper"
 version = "0.1.0"
 description = ""
-authors = ["Jamie O'Reilly-Gall <jamie@advancinganalytics.co.uk>"]
+authors = ["Jamie O'Reilly-Gall <jamieoreillyg@gmail.com>"]
 readme = "README.md"
 packages = [{include = "financial_disclosure_scraper"}]
 
